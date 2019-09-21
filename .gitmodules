@@ -1,0 +1,4 @@
+[submodule "vendor/ecl"]
+	path = vendor/ecl
+	url = git@github.com:PX4/ecl.git
+	branch = master
