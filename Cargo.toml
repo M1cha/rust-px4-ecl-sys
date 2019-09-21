@@ -3,7 +3,14 @@ name = "px4-ecl-sys"
 version = "0.1.0"
 authors = ["Michael Zimmermann <sigmaepsilon92@gmail.com>"]
 edition = "2018"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+build = "build.rs"
+links = "px4-ecl"
 
 [dependencies]
+
+[build-dependencies]
+cmake = "0.1"
+serde = { version = "*", features = ["derive"] }
+serde_json = "1.0"
+cc = { version = "1.0", features = ["parallel"] }
+bindgen = "0.51"
