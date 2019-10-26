@@ -5,12 +5,16 @@ authors = ["Michael Zimmermann <sigmaepsilon92@gmail.com>"]
 edition = "2018"
 build = "build.rs"
 links = "px4-ecl"
+description = "sys crate for https://github.com/PX4/ecl"
+repository = "https://github.com/M1cha/rust-px4-ecl-sys"
+license = "BSD-3-Clause"
 
 [dependencies]
 
 [build-dependencies]
 cmake = "0.1"
-serde = { version = "*", features = ["derive"] }
+serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 cc = { version = "1.0", features = ["parallel"] }
 bindgen = "0.51"
+cpp-vwrap-gen = "0.1"

@@ -36,28 +36,60 @@ fn main() {
         builder.file(command.file);
     }
 
+    let vwrap_src = outdir.join("vwrap.cpp");
+    let vwrap_hdr = outdir.join("vwrap.h");
+    cpp_vwrap_gen::generate(
+        &vwrap_src,
+        &vwrap_hdr,
+        &ekfdir.join("ekf.h"),
+        &[
+            "-x",
+            "c++",
+            "-std=c++14",
+            "-DECL_STANDALONE",
+            "-Wno-pragma-once-outside-header",
+            &format!("-I{}", matrixdir.display()),
+            &format!("-I{}", ecldir.display()),
+            &format!("-I{}", ekfdir.display()),
+        ],
+    )
+    .unwrap();
+    builder.file(vwrap_src);
+
+    builder.file(std::path::Path::new("helpers.cpp"));
+
     builder
         .warnings(true)
         .extra_warnings(true)
         .warnings_into_errors(true)
         .include(&matrixdir)
         .include(&ecldir)
+        .include(&ekfdir)
+        .include(".")
+        .flag("-xc++")
+        .flag("-std=c++14")
         .define("ECL_STANDALONE", None)
-        .flag("-fkeep-inline-functions")
         .compile("px4-ecl");
 
     println!("cargo:rustc-link-search=native={}", outdir.display());
     println!("cargo:rustc-link-lib=px4-ecl");
+    println!("cargo:rustc-link-lib=stdc++");
 
     let bindings = bindgen::Builder::default()
         .header("wrapper.hpp")
         .clang_arg("-xc++")
+        .clang_arg("-std=c++14")
         .clang_arg("-DECL_STANDALONE")
         .clang_arg(format!("-I{}", matrixdir.display()))
         .clang_arg(format!("-I{}", ecldir.display()))
         .clang_arg(format!("-I{}", ekfdir.display()))
-        .layout_tests(false)
+        .clang_arg(format!("-I{}", outdir.display()))
+        .layout_tests(true)
+        .derive_default(true)
         .whitelist_type("Ekf")
+        .whitelist_function("vwrap_.*")
+        .whitelist_function("px4_ecl_sys_helper_.*")
+        .opaque_type("matrix::.*")
         .generate()
         .expect("Unable to generate bindings");
 
